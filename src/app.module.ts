@@ -7,6 +7,8 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RolesModule } from './roles/roles.module';
 import { HandleExceptionsModule } from './handle-exceptions/handle-exceptions.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { HandleExceptionsModule } from './handle-exceptions/handle-exceptions.mo
     }),
     RolesModule,
     HandleExceptionsModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

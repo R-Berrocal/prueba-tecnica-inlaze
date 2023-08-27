@@ -30,10 +30,25 @@ export class RolesService {
 
   async findOne(id: string) {
     const role = await this.roleRepository.findOne({
-      where: { id, is_deleted: false },
+      where: { id },
     });
     if (!role) {
       throw new NotFoundException(`Role with id: ${id} not found`);
+    }
+
+    if (role.is_deleted) {
+      throw new NotFoundException(`Role with id: ${id} is deleted`);
+    }
+
+    return role;
+  }
+
+  async findOneByName(name: string) {
+    const role = await this.roleRepository.findOne({
+      where: { name, is_deleted: false },
+    });
+    if (!role) {
+      throw new NotFoundException(`Role with name: ${name} not found`);
     }
     return role;
   }
@@ -44,7 +59,7 @@ export class RolesService {
     try {
       await this.roleRepository.update({ id }, updateRoleDto);
       return {
-        msg: `role with: ${id}. Update successfully `,
+        msg: `Role with: ${id}. Update successfully `,
       };
     } catch (error) {
       this.logger.error(error);
@@ -57,7 +72,7 @@ export class RolesService {
     try {
       await this.roleRepository.update(id, { is_deleted: true });
       return {
-        msg: `role with: ${id}. Delete successfully `,
+        msg: `Role with: ${id}. Delete successfully `,
       };
     } catch (error) {
       this.logger.error(error);
