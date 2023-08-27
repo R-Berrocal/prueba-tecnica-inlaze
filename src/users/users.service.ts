@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -7,6 +12,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { HandleExceptionsService } from 'src/handle-exceptions/handle-exceptions.service';
 import { RolesService } from 'src/roles/roles.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { LoginUserDto } from 'src/auth/dto/login-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -61,6 +67,23 @@ export class UsersService {
       this.logger.error(error);
       this.handleExceptionService.handleExceptions(error);
     }
+  }
+
+  async validateUser({ email, password }: LoginUserDto) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: { email: true, password: true, id: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Credentials are not valid (email)');
+    }
+
+    if (!bcrypt.compareSync(password, user.password)) {
+      throw new UnauthorizedException('Credentials are not valid (password)');
+    }
+
+    return user;
   }
 
   async remove(id: string) {
