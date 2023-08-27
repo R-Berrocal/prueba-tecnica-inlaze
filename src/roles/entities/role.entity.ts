@@ -29,9 +29,4 @@ export class Role {
   convertUpperCaseName() {
     this.name = this.name.toUpperCase().trim();
   }
-
-  @BeforeUpdate()
-  checkBeforeUpdate() {
-    this.convertUpperCaseName();
-  }
 }

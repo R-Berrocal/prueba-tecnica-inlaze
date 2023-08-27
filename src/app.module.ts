@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RolesModule } from './roles/roles.module';
+import { HandleExceptionsModule } from './handle-exceptions/handle-exceptions.module';
 
 @Module({
   imports: [
@@ -22,9 +23,10 @@ import { RolesModule } from './roles/roles.module';
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV === 'dev',
-      logging: process.env.NODE_ENV === 'dev',
+      // logging: process.env.NODE_ENV === 'dev',
     }),
     RolesModule,
+    HandleExceptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
