@@ -22,11 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<User> {
     const { id } = payload;
 
-    const user = await this.usersService.findOne(id);
-
-    if (user.is_deleted)
-      throw new UnauthorizedException('User is deleted, talk with an admin');
-
-    return user;
+    return await this.usersService.findOne(id);
   }
 }

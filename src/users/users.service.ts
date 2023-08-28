@@ -13,6 +13,7 @@ import { HandleExceptionsService } from 'src/handle-exceptions/handle-exceptions
 import { RolesService } from 'src/roles/roles.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from 'src/auth/dto/login-user.dto';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles';
 
 @Injectable()
 export class UsersService {
@@ -46,18 +47,25 @@ export class UsersService {
     const user = await this.userRepository.findOne({
       where: { id },
     });
+
     if (!user) {
-      throw new NotFoundException(`User with id: ${id} not found`);
+      throw new NotFoundException(`User not found or Token not valid`);
     }
 
     if (user.is_deleted) {
-      throw new NotFoundException(`User with id: ${id} is deleted`);
+      throw new UnauthorizedException('User is deleted, talk with an admin');
     }
+
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto, authUser: User) {
+    updateUserDto.email = updateUserDto.email.toLowerCase().trim();
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
     await this.findOne(id);
+    this.validateUserAuth(id, authUser);
     try {
       await this.userRepository.update({ id }, updateUserDto);
       return {
@@ -72,7 +80,7 @@ export class UsersService {
   async validateUser({ email, password }: LoginUserDto) {
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { email: true, password: true, id: true },
+      select: { email: true, password: true, id: true, is_deleted: true },
     });
 
     if (!user) {
@@ -83,11 +91,16 @@ export class UsersService {
       throw new UnauthorizedException('Credentials are not valid (password)');
     }
 
+    if (user.is_deleted) {
+      throw new UnauthorizedException('User is deleted, talk with an admin');
+    }
+
     return user;
   }
 
-  async remove(id: string) {
+  async remove(id: string, authUser: User) {
     await this.findOne(id);
+    this.validateUserAuth(id, authUser);
     try {
       await this.userRepository.update(id, { is_deleted: true });
       return {
@@ -96,6 +109,12 @@ export class UsersService {
     } catch (error) {
       this.logger.error(error);
       this.handleExceptionService.handleExceptions(error);
+    }
+  }
+
+  validateUserAuth(idUser: string, authUser: User) {
+    if (idUser !== authUser.id && authUser.role.name !== ValidRoles.ADMIN) {
+      throw new UnauthorizedException('You do not have permissions');
     }
   }
 }

@@ -4,6 +4,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { LoginUserDto } from './dto/login-user.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +30,13 @@ export class AuthService {
 
     return {
       user,
+      token: this.getJwtToken({ id: user.id }),
+    };
+  }
+
+  async checkAuthStatus(user: User) {
+    return {
+      ...user,
       token: this.getJwtToken({ id: user.id }),
     };
   }

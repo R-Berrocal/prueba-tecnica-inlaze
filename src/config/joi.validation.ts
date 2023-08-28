@@ -7,4 +7,5 @@ export const JoiValidationEnvSchema = Joi.object({
   DB_HOST: Joi.required(),
   DB_USERNAME: Joi.required(),
   DB_PASSWORD: Joi.required(),
+  JWT_SECRET: Joi.required(),
 });

@@ -1,5 +1,6 @@
 import { Role } from 'src/roles/entities/role.entity';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -25,7 +26,7 @@ export class User {
   @Column({ nullable: true })
   phone: string;
 
-  @ManyToOne(() => Role)
+  @ManyToOne(() => Role, { eager: true })
   role: Role;
 
   @Column({ default: false })
@@ -36,4 +37,9 @@ export class User {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @BeforeInsert()
+  checkFieldsBeforeInsert() {
+    this.email = this.email.toLowerCase().trim();
+  }
 }
