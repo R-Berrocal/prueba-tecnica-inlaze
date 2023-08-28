@@ -5,6 +5,10 @@ import { EnvConfiguration } from './config/env.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RolesModule } from './roles/roles.module';
+import { HandleExceptionsModule } from './handle-exceptions/handle-exceptions.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -19,9 +23,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       database: process.env.DB_NAME,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      autoLoadEntities: process.env.NODE_ENV === 'dev',
+      autoLoadEntities: true,
       synchronize: process.env.NODE_ENV === 'dev',
+      // logging: process.env.NODE_ENV === 'dev',
     }),
+    RolesModule,
+    HandleExceptionsModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
